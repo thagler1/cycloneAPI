@@ -13,12 +13,20 @@ module.exports = function (app, db) {
         }
       });
     });
-  app.get('/hurdat', (req, res) => {
-    console.log('get request to hurdat');
-    const data = db.collection('hurdat').find().toArray(function(err, results) {
-      console.log(results);
+  app.get('/hurdat/:year', (req, res) => {
+    const year = req.params.year;
+    const data = db.collection('hurdat').find({year}).toArray((err, results) => {
       res.send(results);
       // send HTML file populated with quotes here
-    })
+    });
   });
+  app.get('/hurdata/all', (req, res) => {
+    const data = db.collection('hurdat').aggregate([
+      { $group: { _id: '$year', count: { $sum: 1 } }},
+      { $sort: {_id: -1 } } ]).toArray((err, results) => {
+      res.send(results);
+      // send HTML file populated with quotes here
+    });
+  });
+
 };
